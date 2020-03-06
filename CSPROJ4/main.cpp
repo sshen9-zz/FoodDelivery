@@ -7,9 +7,15 @@
 //
 
 #include <iostream>
+#include "ExpandableHashMap.h"
 
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
-    return 0;
+
+#include <list>
+using namespace std;
+
+int main(){
+    struct Pair;
+    ExpandableHashMap<string, int> m;
+    
+
 }
