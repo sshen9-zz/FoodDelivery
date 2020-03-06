@@ -17,5 +17,4 @@ int main(){
     struct Pair;
     ExpandableHashMap<string, int> m;
     
-
 }
