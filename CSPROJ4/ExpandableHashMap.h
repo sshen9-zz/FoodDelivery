@@ -36,7 +36,7 @@ public:
       // C++11 syntax for preventing copying and assignment
     ExpandableHashMap(const ExpandableHashMap&) = delete;
     ExpandableHashMap& operator=(const ExpandableHashMap&) = delete;
-
+    
 private:
     struct Pair{
         KeyType key;
@@ -47,7 +47,6 @@ private:
     double m_maxLoad;
     std::list<Pair>* m_arr;
     int getBucketNumber(const KeyType& key) const;
-    //declare an array of lists, each list holds pointers to pairs
     
 };
 
@@ -104,7 +103,6 @@ void ExpandableHashMap<KeyType, ValueType>::associate(const KeyType& key, const 
     m_size+=1;
     
     if(((static_cast<double>(m_size)) / m_numBuckets) > m_maxLoad){
-        std::cout<<"DOUBLING"<<std::endl;
         //rehash everything in current map into new map that is twice the size
         m_numBuckets*=2;
         std::list<Pair>* temp = new std::list<Pair>[m_numBuckets];
@@ -146,9 +144,10 @@ const ValueType* ExpandableHashMap<KeyType, ValueType>::find(const KeyType& key)
 
 template<typename KeyType, typename ValueType>
 int ExpandableHashMap<KeyType, ValueType>::getBucketNumber(const KeyType& key) const {
-    unsigned long hash(const KeyType& k); // prototype unsigned
-    unsigned long h = hash(key);
+    unsigned int hash(const KeyType& k); // prototype unsigned
+    unsigned int h = hash(key);
     return h%m_numBuckets;
 }
+
 
 #endif /* ExpandableHashMap_h */

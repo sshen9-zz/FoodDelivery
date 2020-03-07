@@ -35,6 +35,8 @@
 		A270FF53241096CA00341D7C /* DeliveryPlanner.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DeliveryPlanner.cpp; sourceTree = "<group>"; };
 		A270FF55241096DB00341D7C /* DeliveryOptimizer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DeliveryOptimizer.cpp; sourceTree = "<group>"; };
 		A270FF572410982D00341D7C /* provided.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = provided.h; sourceTree = "<group>"; };
+		A270FF582412B98100341D7C /* mapdata.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = mapdata.txt; sourceTree = "<group>"; };
+		A270FF592412B99200341D7C /* deliveries.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = deliveries.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +69,8 @@
 		A270FF452410590A00341D7C /* CSPROJ4 */ = {
 			isa = PBXGroup;
 			children = (
+				A270FF592412B99200341D7C /* deliveries.txt */,
+				A270FF582412B98100341D7C /* mapdata.txt */,
 				A270FF462410590A00341D7C /* main.cpp */,
 				A270FF4E24105A5E00341D7C /* ExpandableHashMap.h */,
 				A270FF4F2410969A00341D7C /* StreetMap.cpp */,
