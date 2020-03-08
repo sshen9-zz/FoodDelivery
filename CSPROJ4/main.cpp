@@ -25,8 +25,8 @@ int main(int argc, char *argv[])
     StreetMap* ptr = &m;
     PointToPointRouter p(ptr);
     
-    GeoCoord g1("34.0625329", "-118.4470263");
-    GeoCoord g2("34.0683189", "-118.4536522");
+    GeoCoord g1("34.0388859","-118.4974725");
+    GeoCoord g2("34.0493948", "-118.4636955");
     //strange case
     
 //    GeoCoord g1("34.0625329", "-118.4470263");
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     }
     
 
-    
+    cout<<d<<endl;
     
     
 //    if (argc != 3)

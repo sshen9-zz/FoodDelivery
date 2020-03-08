@@ -26,7 +26,6 @@ public:
         double& totalDistanceTravelled) const;
 private:
     const StreetMap* m_smPtr;
-    double distance(const GeoCoord c1, const GeoCoord c2) const;
 };
 
 struct PriorityPair{
@@ -48,10 +47,6 @@ PointToPointRouterImpl::PointToPointRouterImpl(const StreetMap* sm)
 
 PointToPointRouterImpl::~PointToPointRouterImpl()
 {
-}
-
-double PointToPointRouterImpl::distance(const GeoCoord c1, const GeoCoord c2) const{
-    return sqrt((c1.latitude-c2.latitude)*(c1.latitude-c2.latitude)+(c1.longitude-c2.longitude)*(c1.longitude-c2.longitude));
 }
 
 DeliveryResult PointToPointRouterImpl::generatePointToPointRoute(
@@ -100,12 +95,12 @@ DeliveryResult PointToPointRouterImpl::generatePointToPointRoute(
         vector<StreetSegment> v;
         m_smPtr->getSegmentsThatStartWith(cur, v);
         for(int i=0; i<v.size(); i++){
-            double new_cost = *(cost_so_far.find(cur))+distance(cur, v[i].end);
+            double new_cost = *(cost_so_far.find(cur))+distanceEarthMiles(cur, v[i].end);
             double *p = cost_so_far.find(v[i].end);
             if(p == nullptr || new_cost<(*p)){
                 cost_so_far.associate(v[i].end, new_cost);
                 
-                double priority = -(new_cost+distance(v[i].end, end));
+                double priority = -(new_cost+distanceEarthMiles(v[i].end, end));
                 q.push(PriorityPair(v[i].end, priority));
                 came_from.associate(v[i].end, cur);
             }
