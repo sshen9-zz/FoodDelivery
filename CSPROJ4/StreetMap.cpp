@@ -28,7 +28,7 @@ std::string to_string_with_precision(const T value, const int n = 7)
     return out.str();
 }
 
-unsigned int hash(const GeoCoord& g)
+unsigned int hasher(const GeoCoord& g)
 {
     return hash<string>()(g.latitudeText + g.longitudeText);
 }

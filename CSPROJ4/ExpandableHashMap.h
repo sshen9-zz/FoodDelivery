@@ -144,8 +144,8 @@ const ValueType* ExpandableHashMap<KeyType, ValueType>::find(const KeyType& key)
 
 template<typename KeyType, typename ValueType>
 int ExpandableHashMap<KeyType, ValueType>::getBucketNumber(const KeyType& key) const {
-    unsigned int hash(const KeyType& k); // prototype unsigned
-    unsigned int h = hash(key);
+    unsigned int hasher(const KeyType& k); // prototype unsigned
+    unsigned int h = hasher(key);
     return h%m_numBuckets;
 }
 

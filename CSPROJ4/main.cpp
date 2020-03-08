@@ -24,19 +24,25 @@ int main(int argc, char *argv[])
     m.load("mapdata.txt");
     StreetMap* ptr = &m;
     PointToPointRouter p(ptr);
-    GeoCoord g1("34.0732851", "-118.4931016");
-    GeoCoord g2("34.0731003", "-118.4931016");
     
-    vector<StreetSegment> segs;
-    m.getSegmentsThatStartWith(g1, segs);
-    for(int i=0; i<segs.size(); i++){
-        cout<<segs[i].end.latitudeText<<", "<<segs[i].end.longitudeText<<endl;
+    GeoCoord g1("34.0625329", "-118.4470263");
+    GeoCoord g2("34.0683189", "-118.4536522");
+    //strange case
+    
+//    GeoCoord g1("34.0625329", "-118.4470263");
+//    GeoCoord g2("34.0711774", "-118.4495120");
+    
+    
+    list<StreetSegment> route;
+    double d;
+    p.generatePointToPointRoute(g1, g2, route, d);
+    list<StreetSegment>::iterator it = route.begin();
+    while(it!=route.end()){
+        GeoCoord g1 = (*it).start;
+        GeoCoord g2 = (*it).end;
+        cout<<"("<<g1.latitudeText<<","<<g1.longitudeText<<")"<<" "<<"("<<g2.latitudeText<<","<<g2.longitudeText<<") "<<(*it).name<<endl;
+        it++;
     }
-    
-//    list<StreetSegment> route;
-//    double d;
-//    p.generatePointToPointRoute(g1, g2, route, d);
-//    cout<<route.size()<<endl;
     
 
     

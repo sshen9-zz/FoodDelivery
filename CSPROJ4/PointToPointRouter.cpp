@@ -60,6 +60,7 @@ DeliveryResult PointToPointRouterImpl::generatePointToPointRoute(
         list<StreetSegment>& route,
         double& totalDistanceTravelled) const
 {
+
     
     if(start == end){
         totalDistanceTravelled = 0;
@@ -87,9 +88,11 @@ DeliveryResult PointToPointRouterImpl::generatePointToPointRoute(
     
 
     while(!q.empty()){
+        string s;
         cur = q.top().key;
         q.pop();
         if(cur == end){
+            cerr<<"*****FOUND PATH******"<<endl<<endl<<endl;
             break;
         }
 
@@ -101,7 +104,8 @@ DeliveryResult PointToPointRouterImpl::generatePointToPointRoute(
             double *p = cost_so_far.find(v[i].end);
             if(p == nullptr || new_cost<(*p)){
                 cost_so_far.associate(v[i].end, new_cost);
-                double priority = new_cost+distance(v[i].end, end);
+                
+                double priority = -(new_cost+distance(v[i].end, end));
                 q.push(PriorityPair(v[i].end, priority));
                 came_from.associate(v[i].end, cur);
             }
@@ -117,31 +121,28 @@ DeliveryResult PointToPointRouterImpl::generatePointToPointRoute(
     route.clear();
     
     GeoCoord c = end;
+    stack<StreetSegment> stk;
     //reverse the street segments
-    stack<GeoCoord> stk;
     while(c!=start){
-        stk.push(c);
+        GeoCoord c2 = c;
         c = *came_from.find(c);
-    }
-    
-    while(!stk.empty()){
-        GeoCoord c1 = stk.top();
-        stk.pop();
-        GeoCoord c2 = stk.top();
-        stk.pop();
         string name;
         vector<StreetSegment> v;
-        m_smPtr->getSegmentsThatStartWith(c1, v);
+        m_smPtr->getSegmentsThatStartWith(c, v);
         for(int i=0; i<v.size(); i++){
             if(v[i].end == c2){
                 name = v[i].name;
             }
         }
-        
-        StreetSegment s(c1, c2, name);
-        route.push_back(s);
+        StreetSegment s(c, c2, name);
+        stk.push(s);
     }
     
+    while(!stk.empty()){
+        route.push_back(stk.top());
+        stk.pop();
+    }
+
     totalDistanceTravelled = *(cost_so_far.find(end));
 
     return DELIVERY_SUCCESS;
