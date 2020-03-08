@@ -22,6 +22,24 @@ int main(int argc, char *argv[])
 {
     StreetMap m;
     m.load("mapdata.txt");
+    StreetMap* ptr = &m;
+    PointToPointRouter p(ptr);
+    GeoCoord g1("34.0732851", "-118.4931016");
+    GeoCoord g2("34.0731003", "-118.4931016");
+    
+    vector<StreetSegment> segs;
+    m.getSegmentsThatStartWith(g1, segs);
+    for(int i=0; i<segs.size(); i++){
+        cout<<segs[i].end.latitudeText<<", "<<segs[i].end.longitudeText<<endl;
+    }
+    
+//    list<StreetSegment> route;
+//    double d;
+//    p.generatePointToPointRoute(g1, g2, route, d);
+//    cout<<route.size()<<endl;
+    
+
+    
     
     
 //    if (argc != 3)

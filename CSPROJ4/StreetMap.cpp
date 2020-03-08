@@ -19,6 +19,15 @@
 #include <stack>
 using namespace std;
 
+template <typename T>
+std::string to_string_with_precision(const T value, const int n = 7)
+{
+    std::ostringstream out;
+    out.precision(n);
+    out << std::fixed << value;
+    return out.str();
+}
+
 unsigned int hash(const GeoCoord& g)
 {
     return hash<string>()(g.latitudeText + g.longitudeText);
@@ -52,6 +61,7 @@ bool StreetMapImpl::load(string mapFile)
     }
     
     stack<string> streetNames;
+    
     string line;
     while(getline(inf, line)){
         istringstream iss(line);
@@ -70,9 +80,11 @@ bool StreetMapImpl::load(string mapFile)
         }
         
         string streetName = streetNames.top();
-        GeoCoord start(to_string(la1), to_string(lo1));
-        GeoCoord end(to_string(la2), to_string(lo2));
+        GeoCoord start(to_string_with_precision(la1), to_string_with_precision(lo1));
+        GeoCoord end(to_string_with_precision(la2), to_string_with_precision(lo2));
         StreetSegment s(start, end, streetName);
+        
+//        cout<<start.latitudeText<<","<<start.longitudeText<<"     "<<end.latitudeText<<","<<end.longitudeText<<endl;
         
         vector<StreetSegment>* p = m_map.find(start);
         if(p!=nullptr){
@@ -103,9 +115,11 @@ bool StreetMapImpl::getSegmentsThatStartWith(const GeoCoord& gc, vector<StreetSe
 {
     const vector<StreetSegment>* p = m_map.find(gc);
     if(p==nullptr){
+
         return false;
     }
     segs.clear();
+    
     for(int i=0; i<(*p).size(); i++){
         segs.push_back((*p)[i]);
     }
