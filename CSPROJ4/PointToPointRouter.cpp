@@ -87,7 +87,6 @@ DeliveryResult PointToPointRouterImpl::generatePointToPointRoute(
         cur = q.top().key;
         q.pop();
         if(cur == end){
-            cerr<<"*****FOUND PATH******"<<endl<<endl<<endl;
             break;
         }
 

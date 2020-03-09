@@ -7,9 +7,9 @@
 //
 
 #include <stdio.h>
-
 #include "provided.h"
 #include <vector>
+#include <cmath>
 using namespace std;
 
 class DeliveryOptimizerImpl
@@ -22,14 +22,30 @@ public:
         vector<DeliveryRequest>& deliveries,
         double& oldCrowDistance,
         double& newCrowDistance) const;
+private:
+    double calculateDist(GeoCoord depot, vector<DeliveryRequest>& deliveries) const;
+    const StreetMap* m_sm;
 };
 
 DeliveryOptimizerImpl::DeliveryOptimizerImpl(const StreetMap* sm)
 {
+    m_sm = sm;
 }
 
 DeliveryOptimizerImpl::~DeliveryOptimizerImpl()
 {
+}
+
+double DeliveryOptimizerImpl::calculateDist(GeoCoord depot, vector<DeliveryRequest>& deliveries) const{
+    double d = 0;
+    GeoCoord last = depot;
+    for(int i=0; i<deliveries.size(); i++){
+        d+=distanceEarthMiles(last, deliveries[i].location);
+        last = deliveries[i].location;
+    }
+    
+    d+=distanceEarthMiles(last, depot);
+    return d;
 }
 
 void DeliveryOptimizerImpl::optimizeDeliveryOrder(
@@ -38,8 +54,58 @@ void DeliveryOptimizerImpl::optimizeDeliveryOrder(
     double& oldCrowDistance,
     double& newCrowDistance) const
 {
-    oldCrowDistance = 0;  // Delete these lines and implement this function correctly
-    newCrowDistance = 0;
+    oldCrowDistance = calculateDist(depot, deliveries);
+    
+    //Set initial temp
+    double T = 100000;
+
+    //Cooling rate
+    double coolingRate = 0.003;
+    
+    vector<DeliveryRequest> bestOrder = deliveries;
+    
+    while(T>1){
+        vector<DeliveryRequest> newOrder = deliveries;
+        
+        //generate two random indicies
+        int index1 = rand() % deliveries.size();
+        int index2 = index1;
+        while(index2 == index1){
+            index2 = rand() &deliveries.size();
+        }
+        
+        //swap the two locations in the new order
+        DeliveryRequest temp = newOrder[index1];
+        newOrder[index1] = newOrder[index2];
+        newOrder[index2] = temp;
+        
+        //calculate new distance in new order and current order
+        double new_dist = calculateDist(depot, newOrder);
+        double cur_dist = calculateDist(depot, deliveries);
+        
+        if(new_dist>cur_dist){
+            deliveries = newOrder;
+        }else{
+            double p = exp((cur_dist-new_dist)/T);
+            double d = rand() % 100000;
+            d/=100000;
+            if(p>d){
+                //accept the change
+                deliveries = newOrder;
+            }
+        }
+        
+        new_dist = calculateDist(depot, deliveries);
+        double best_dist = calculateDist(depot, bestOrder);
+        if(new_dist>best_dist){
+            bestOrder = deliveries;
+        }
+        
+        T*=(1-coolingRate);
+        
+    }
+    
+    newCrowDistance = calculateDist(depot, deliveries);
 }
 
 //******************** DeliveryOptimizer functions ****************************

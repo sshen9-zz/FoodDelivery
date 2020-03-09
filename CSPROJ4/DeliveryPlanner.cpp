@@ -7,7 +7,8 @@
 //
 
 #include <stdio.h>
-
+#include <sstream>
+#include <fstream>
 #include "provided.h"
 #include <vector>
 using namespace std;
@@ -22,10 +23,14 @@ public:
         const vector<DeliveryRequest>& deliveries,
         vector<DeliveryCommand>& commands,
         double& totalDistanceTravelled) const;
+private:
+    string getTurnDirection(double a) const;
+    const StreetMap* m_sm;
 };
 
 DeliveryPlannerImpl::DeliveryPlannerImpl(const StreetMap* sm)
 {
+    m_sm = sm;
 }
 
 DeliveryPlannerImpl::~DeliveryPlannerImpl()
@@ -38,8 +43,168 @@ DeliveryResult DeliveryPlannerImpl::generateDeliveryPlan(
     vector<DeliveryCommand>& commands,
     double& totalDistanceTravelled) const
 {
-    return NO_ROUTE;  // Delete this line and implement this function correctly
+    totalDistanceTravelled = 0;
+    GeoCoord last = depot;
+    for(int i=0; i<deliveries.size(); i++){
+        PointToPointRouter p(m_sm);
+        list<StreetSegment> routes;
+        double d;
+        if(last == deliveries[i].location){
+            DeliveryCommand deliver;
+            deliver.initAsDeliverCommand(deliveries[i].item);
+            commands.push_back(deliver);
+            continue;
+        }
+        DeliveryResult status_code = p.generatePointToPointRoute(last, deliveries[i].location, routes, d);
+        if(status_code!=DELIVERY_SUCCESS){
+            return status_code;
+        }
+        list<StreetSegment>::iterator it = routes.begin();
+        StreetSegment lastStreet = (*it);
+        double streetDist = 0;
+        while(it!=routes.end()){
+            
+            StreetSegment curStreet = (*it);
+            
+            if(curStreet == routes.back()){
+                //generate a proceed command and deliver command;
+                DeliveryCommand proceed;
+                double a = angleOfLine(lastStreet);
+                string dir = getTurnDirection(a);
+                streetDist += distanceEarthMiles(curStreet.start, curStreet.end);
+                totalDistanceTravelled += distanceEarthMiles(curStreet.start, curStreet.end);
+                proceed.initAsProceedCommand(dir, curStreet.name, streetDist);
+                DeliveryCommand deliver;
+                deliver.initAsDeliverCommand(deliveries[i].item);
+                commands.push_back(proceed);
+                commands.push_back(deliver);
+                break;
+            }
+            if(curStreet.name!=lastStreet.name){
+                //generate delivery command
+                DeliveryCommand command;
+                double a = angleOfLine(lastStreet);
+                string dir = getTurnDirection(a);
+                command.initAsProceedCommand(dir, lastStreet.name, streetDist);
+                commands.push_back(command);
+                DeliveryCommand turn;
+                a = angleBetween2Lines(lastStreet, curStreet);
+                if(a<1 || a>359){
+                    //proceed onto the street
+                    lastStreet = curStreet;
+                    streetDist = 0;
+                    continue;
+                }else if(a>=1 && a<180){
+                    //generate left turn:
+                    turn.initAsTurnCommand("left", curStreet.name);
+                    commands.push_back(turn);
+                }else if(a>=180 && a<359){
+                    //generate right turn
+                    turn.initAsTurnCommand("right", curStreet.name);
+                    commands.push_back(turn);
+                }
+                
+                lastStreet = curStreet;
+                streetDist = 0;
+            }
+            
+            streetDist += distanceEarthMiles(curStreet.start, curStreet.end);
+            totalDistanceTravelled += distanceEarthMiles(curStreet.start, curStreet.end);
+            it++;
+        }
+        last = deliveries[i].location;
+    }
+    
+    
+    //GO BACK HOME
+    //
+    //
+    
+    PointToPointRouter p(m_sm);
+    list<StreetSegment> routes;
+    double d;
+    p.generatePointToPointRoute(deliveries[deliveries.size()-1].location, depot, routes, d);
+    list<StreetSegment>::iterator it = routes.begin();
+    StreetSegment lastStreet = (*it);
+    double streetDist = 0;
+    while(it!=routes.end()){
+        
+        StreetSegment curStreet = (*it);
+        
+        if(curStreet == routes.back()){
+            //generate a proceed command and deliver command;
+            DeliveryCommand proceed;
+            double a = angleOfLine(lastStreet);
+            string dir = getTurnDirection(a);
+            streetDist += distanceEarthMiles(curStreet.start, curStreet.end);
+            totalDistanceTravelled += distanceEarthMiles(curStreet.start, curStreet.end);
+            proceed.initAsProceedCommand(dir, curStreet.name, streetDist);
+            commands.push_back(proceed);
+            break;
+        }
+        if(curStreet.name!=lastStreet.name){
+            //generate delivery command
+            DeliveryCommand command;
+            double a = angleOfLine(lastStreet);
+            string dir = getTurnDirection(a);
+            command.initAsProceedCommand(dir, lastStreet.name, streetDist);
+            commands.push_back(command);
+            DeliveryCommand turn;
+            a = angleBetween2Lines(lastStreet, curStreet);
+            if(a<1 || a>359){
+                //proceed onto the street
+                lastStreet = curStreet;
+                streetDist = 0;
+                continue;
+            }else if(a>=1 && a<180){
+                //generate left turn:
+                turn.initAsTurnCommand("left", curStreet.name);
+                commands.push_back(turn);
+            }else if(a>=180 && a<359){
+                //generate right turn
+                turn.initAsTurnCommand("right", curStreet.name);
+                commands.push_back(turn);
+            }
+            
+            lastStreet = curStreet;
+            streetDist = 0;
+        }
+        
+        streetDist += distanceEarthMiles(curStreet.start, curStreet.end);
+        totalDistanceTravelled += distanceEarthMiles(curStreet.start, curStreet.end);
+        it++;
+    }
+    
+    
+    return DELIVERY_SUCCESS;
 }
+
+string DeliveryPlannerImpl::getTurnDirection(double a) const{
+    string dir;
+    if(a<0){
+        cerr<<"invalid angle"<<endl;
+    }else if(a<22.5){
+        dir = "east";
+    }else if(a<67.5){
+        dir = "northeast";
+    }else if(a<112.5){
+        dir = "north";
+    }else if(a<157.5){
+        dir = "northwest";
+    }else if(a<202.5){
+        dir = "west";
+    }else if(a<247.5){
+        dir = "southwest";
+    }else if(a<292.5){
+        dir = "south";
+    }else if(a<337.5){
+        dir = "southeast";
+    }else{
+        dir = "east";
+    }
+    return dir;
+}
+
 
 //******************** DeliveryPlanner functions ******************************
 

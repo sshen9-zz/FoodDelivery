@@ -25,29 +25,34 @@ int main(int argc, char *argv[])
     StreetMap* ptr = &m;
     PointToPointRouter p(ptr);
     
-    GeoCoord g1("34.0388859","-118.4974725");
-    GeoCoord g2("34.0493948", "-118.4636955");
-    //strange case
+//    list<StreetSegment> route;
+//    double d;
+//    p.generatePointToPointRoute(g1, g2, route, d);
+//    list<StreetSegment>::iterator it = route.begin();
+//    while(it!=route.end()){
+//        GeoCoord g1 = (*it).start;
+//        GeoCoord g2 = (*it).end;
+//        cout<<"("<<g1.latitudeText<<","<<g1.longitudeText<<")"<<" "<<"("<<g2.latitudeText<<","<<g2.longitudeText<<") "<<(*it).name<<endl;
+//        it++;
+//    }
     
-//    GeoCoord g1("34.0625329", "-118.4470263");
-//    GeoCoord g2("34.0711774", "-118.4495120");
-    
-    
-    list<StreetSegment> route;
-    double d;
-    p.generatePointToPointRoute(g1, g2, route, d);
-    list<StreetSegment>::iterator it = route.begin();
-    while(it!=route.end()){
-        GeoCoord g1 = (*it).start;
-        GeoCoord g2 = (*it).end;
-        cout<<"("<<g1.latitudeText<<","<<g1.longitudeText<<")"<<" "<<"("<<g2.latitudeText<<","<<g2.longitudeText<<") "<<(*it).name<<endl;
-        it++;
-    }
-    
+    GeoCoord depot;
+    vector<DeliveryRequest> deliveries;
+    loadDeliveryRequests("/Users/sshen9/Desktop/CSPROJ4/CSPROJ4/deliveries.txt", depot, deliveries);
+    cout<<deliveries.size()<<endl;
 
-    cout<<d<<endl;
+    DeliveryPlanner planner(ptr);
+    vector<DeliveryCommand> cmd;
+    double d;
+    planner.generateDeliveryPlan(depot, deliveries, cmd, d);
+    for(int i=0; i<cmd.size(); i++){
+        cout<<cmd[i].description()<<endl;
+    }
+
+    cout<<"Total dist: "<<d<<endl;
     
-    
+//
+//
 //    if (argc != 3)
 //    {
 //        cout << "Usage: " << argv[0] << " mapdata.txt deliveries.txt" << endl;
