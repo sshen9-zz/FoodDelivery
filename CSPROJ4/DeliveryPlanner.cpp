@@ -43,19 +43,25 @@ DeliveryResult DeliveryPlannerImpl::generateDeliveryPlan(
     vector<DeliveryCommand>& commands,
     double& totalDistanceTravelled) const
 {
+    vector<DeliveryRequest> newOrder = deliveries;
+    DeliveryOptimizer d_optimizer(m_sm);
+    double oldDist;
+    double newDist;
+    d_optimizer.optimizeDeliveryOrder(depot, newOrder, oldDist, newDist);
+ 
     totalDistanceTravelled = 0;
     GeoCoord last = depot;
-    for(int i=0; i<deliveries.size(); i++){
+    for(int i=0; i<newOrder.size(); i++){
         PointToPointRouter p(m_sm);
         list<StreetSegment> routes;
         double d;
-        if(last == deliveries[i].location){
+        if(last == newOrder[i].location){
             DeliveryCommand deliver;
-            deliver.initAsDeliverCommand(deliveries[i].item);
+            deliver.initAsDeliverCommand(newOrder[i].item);
             commands.push_back(deliver);
             continue;
         }
-        DeliveryResult status_code = p.generatePointToPointRoute(last, deliveries[i].location, routes, d);
+        DeliveryResult status_code = p.generatePointToPointRoute(last, newOrder[i].location, routes, d);
         if(status_code!=DELIVERY_SUCCESS){
             return status_code;
         }
@@ -75,7 +81,7 @@ DeliveryResult DeliveryPlannerImpl::generateDeliveryPlan(
                 totalDistanceTravelled += distanceEarthMiles(curStreet.start, curStreet.end);
                 proceed.initAsProceedCommand(dir, curStreet.name, streetDist);
                 DeliveryCommand deliver;
-                deliver.initAsDeliverCommand(deliveries[i].item);
+                deliver.initAsDeliverCommand(newOrder[i].item);
                 commands.push_back(proceed);
                 commands.push_back(deliver);
                 break;
@@ -112,7 +118,7 @@ DeliveryResult DeliveryPlannerImpl::generateDeliveryPlan(
             totalDistanceTravelled += distanceEarthMiles(curStreet.start, curStreet.end);
             it++;
         }
-        last = deliveries[i].location;
+        last = newOrder[i].location;
     }
     
     
@@ -123,7 +129,7 @@ DeliveryResult DeliveryPlannerImpl::generateDeliveryPlan(
     PointToPointRouter p(m_sm);
     list<StreetSegment> routes;
     double d;
-    p.generatePointToPointRoute(deliveries[deliveries.size()-1].location, depot, routes, d);
+    p.generatePointToPointRoute(newOrder[newOrder.size()-1].location, depot, routes, d);
     list<StreetSegment>::iterator it = routes.begin();
     StreetSegment lastStreet = (*it);
     double streetDist = 0;

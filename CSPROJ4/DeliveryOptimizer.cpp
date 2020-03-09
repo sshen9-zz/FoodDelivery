@@ -71,7 +71,7 @@ void DeliveryOptimizerImpl::optimizeDeliveryOrder(
         int index1 = rand() % deliveries.size();
         int index2 = index1;
         while(index2 == index1){
-            index2 = rand() &deliveries.size();
+            index2 = rand() % deliveries.size();
         }
         
         //swap the two locations in the new order
@@ -83,7 +83,7 @@ void DeliveryOptimizerImpl::optimizeDeliveryOrder(
         double new_dist = calculateDist(depot, newOrder);
         double cur_dist = calculateDist(depot, deliveries);
         
-        if(new_dist>cur_dist){
+        if(new_dist<cur_dist){
             deliveries = newOrder;
         }else{
             double p = exp((cur_dist-new_dist)/T);
@@ -97,15 +97,17 @@ void DeliveryOptimizerImpl::optimizeDeliveryOrder(
         
         new_dist = calculateDist(depot, deliveries);
         double best_dist = calculateDist(depot, bestOrder);
-        if(new_dist>best_dist){
+        if(new_dist<best_dist){
             bestOrder = deliveries;
         }
         
         T*=(1-coolingRate);
-        
     }
     
-    newCrowDistance = calculateDist(depot, deliveries);
+    deliveries = bestOrder;
+    newCrowDistance = calculateDist(depot, bestOrder);
+    cout<<"OLD DISTANCE: "<<oldCrowDistance<<endl;
+    cout<<"NEW DISTANCE: "<<newCrowDistance<<endl;
 }
 
 //******************** DeliveryOptimizer functions ****************************
