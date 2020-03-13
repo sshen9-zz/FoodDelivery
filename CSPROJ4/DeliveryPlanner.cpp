@@ -48,7 +48,8 @@ DeliveryResult DeliveryPlannerImpl::generateDeliveryPlan(
     double oldDist;
     double newDist;
     d_optimizer.optimizeDeliveryOrder(depot, newOrder, oldDist, newDist);
- 
+    
+    
     totalDistanceTravelled = 0;
     GeoCoord last = depot;
     for(int i=0; i<newOrder.size(); i++){
@@ -69,7 +70,6 @@ DeliveryResult DeliveryPlannerImpl::generateDeliveryPlan(
         StreetSegment lastStreet = (*it);
         double streetDist = 0;
         while(it!=routes.end()){
-            
             StreetSegment curStreet = (*it);
             
             if(curStreet == routes.back()){
@@ -187,9 +187,7 @@ DeliveryResult DeliveryPlannerImpl::generateDeliveryPlan(
 
 string DeliveryPlannerImpl::getTurnDirection(double a) const{
     string dir;
-    if(a<0){
-        cerr<<"invalid angle"<<endl;
-    }else if(a<22.5){
+    if(a<22.5 && a>=0){
         dir = "east";
     }else if(a<67.5){
         dir = "northeast";

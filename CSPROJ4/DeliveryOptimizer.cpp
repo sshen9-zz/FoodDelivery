@@ -56,6 +56,10 @@ void DeliveryOptimizerImpl::optimizeDeliveryOrder(
 {
     oldCrowDistance = calculateDist(depot, deliveries);
     
+    if(deliveries.size()<=1){
+        return;
+    }
+    
     //Set initial temp
     double T = 100000;
 
@@ -103,11 +107,9 @@ void DeliveryOptimizerImpl::optimizeDeliveryOrder(
         
         T*=(1-coolingRate);
     }
-    
     deliveries = bestOrder;
     newCrowDistance = calculateDist(depot, bestOrder);
-    cout<<"OLD DISTANCE: "<<oldCrowDistance<<endl;
-    cout<<"NEW DISTANCE: "<<newCrowDistance<<endl;
+
 }
 
 //******************** DeliveryOptimizer functions ****************************

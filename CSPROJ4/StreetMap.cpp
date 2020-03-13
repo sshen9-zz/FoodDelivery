@@ -54,7 +54,7 @@ StreetMapImpl::~StreetMapImpl()
 
 bool StreetMapImpl::load(string mapFile)
 {
-    ifstream inf("/Users/sshen9/Desktop/CSPROJ4/CSPROJ4/mapdata.txt");
+    ifstream inf(mapFile);
     if(!inf){
         //cant find the file
         return false;
